@@ -23,10 +23,10 @@ void print_usage(void);
  * print help text
  */
 void print_usage(void) {
-    printf("Usage: %s [mode] interface \"filter\"\n", "netspeeder");
+    printf("Usage: %s <mode> <interface> \"filter\"\n", "netspeeder");
     printf("\n");
     printf("Options:\n");
-    printf("    mode         Ethernet header length(auto, normal, cooked)\n");
+    printf("    mode         Ethernet header length. (auto, normal, cooked)\n");
     printf("                 The default is \"auto\"\n");
     printf("    interface    Listen on <interface> for packets.\n");
     printf("    filter       Rules to filter packets.\n");
@@ -118,7 +118,7 @@ int main(int argc, char **argv) {
         return -1;
     }
 
-    printf("ethernet header len: [%d](14:normal, 16:cooked)\n", ethernet_h_len);
+    printf("Ethernet header len: [%d](14:normal, 16:cooked)\n", ethernet_h_len);
 
     if (pcap_lookupnet(dev, &net, &mask, errbuf) == -1) {
         printf("Could not get netmask for device %s: %s\n", dev, errbuf);
@@ -126,18 +126,18 @@ int main(int argc, char **argv) {
         mask = 0;
     }
 
-    printf("init pcap\n");
+    printf("Init pcap\n");
     handle = pcap_open_live(dev, SNAP_LEN, 1, 1000, errbuf);
     if (handle == NULL) {
         printf("pcap_open_live dev: [%s] err: [%s]\n", dev, errbuf);
-        printf("init pcap failed\n");
+        printf("Init pcap failed\n");
         return -1;
     }
 
-    printf("init libnet\n");
+    printf("Init libnet\n");
     libnet_t *libnet_handler = start_libnet(dev);
     if (NULL == libnet_handler) {
-        printf("init libnet failed\n");
+        printf("Init libnet failed\n");
         return -1;
     }
 
