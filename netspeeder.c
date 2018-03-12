@@ -10,13 +10,10 @@
 /* default snap length (maximum bytes per packet to capture) */
 #define SNAP_LEN 65535
 #define SPECIAL_TTL 88
-#define ARGC_NUM 3
+#define ETHERNET_H_LEN_COOKED 16
+#define ETHERNET_H_LEN_NORMAL 14
 
-#ifdef COOKED
-#define ETHERNET_H_LEN 16
-#else
-#define ETHERNET_H_LEN 14
-#endif
+static int ethernet_h_len = -1;
 
 void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
 
@@ -26,9 +23,11 @@ void print_usage(void);
  * print help text
  */
 void print_usage(void) {
-    printf("Usage: %s [interface][\"filter rule\"]\n", "netspeeder");
+    printf("Usage: %s [mode] interface \"filter\"\n", "netspeeder");
     printf("\n");
     printf("Options:\n");
+    printf("    mode         Ethernet header length(auto, normal, cooked)\n");
+    printf("                 The default is \"auto\"\n");
     printf("    interface    Listen on <interface> for packets.\n");
     printf("    filter       Rules to filter packets.\n");
     printf("\n");
@@ -41,7 +40,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     libnet_t *libnet_handler = (libnet_t *) args;
     count++;
 
-    ip = (struct libnet_ipv4_hdr *) (packet + ETHERNET_H_LEN);
+    ip = (struct libnet_ipv4_hdr *) (packet + ethernet_h_len);
 
     if (ip->ip_ttl != SPECIAL_TTL) {
         ip->ip_ttl = SPECIAL_TTL;
@@ -75,9 +74,35 @@ int main(int argc, char **argv) {
     struct bpf_program fp;
     bpf_u_int32 net, mask;
 
-    if (argc == ARGC_NUM) {
+    if (argc == 3) {
         dev = argv[1];
         filter_rule = argv[2];
+        printf("Device: %s\n", dev);
+        printf("Filter rule: %s\n", filter_rule);
+
+        if (strncmp(argv[1], "venet", 5) == 0) {
+            ethernet_h_len = ETHERNET_H_LEN_COOKED;
+        } else {
+            ethernet_h_len = ETHERNET_H_LEN_NORMAL;
+        }
+    } else if (argc == 4) {
+        if (strcmp(argv[1], "auto") == 0) {
+            if (strncmp(argv[1], "venet", 5) == 0) {
+                ethernet_h_len = ETHERNET_H_LEN_COOKED;
+            } else {
+                ethernet_h_len = ETHERNET_H_LEN_NORMAL;
+            }
+        } else if (strcmp(argv[1], "normal") == 0) {
+            ethernet_h_len = ETHERNET_H_LEN_NORMAL;
+        } else if (strcmp(argv[1], "cooked") == 0) {
+            ethernet_h_len = ETHERNET_H_LEN_COOKED;
+        } else {
+            print_usage();
+            return -1;
+        }
+
+        dev = argv[2];
+        filter_rule = argv[3];
         printf("Device: %s\n", dev);
         printf("Filter rule: %s\n", filter_rule);
     } else {
@@ -85,10 +110,10 @@ int main(int argc, char **argv) {
         return -1;
     }
 
-    printf("ethernet header len: [%d](14:normal, 16:cooked)\n", ETHERNET_H_LEN);
+    printf("ethernet header len: [%d](14:normal, 16:cooked)\n", ethernet_h_len);
 
     if (pcap_lookupnet(dev, &net, &mask, errbuf) == -1) {
-        printf("Couldn't get netmask for device %s: %s\n", dev, errbuf);
+        printf("Could not get netmask for device %s: %s\n", dev, errbuf);
         net = 0;
         mask = 0;
     }
