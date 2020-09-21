@@ -9,6 +9,8 @@
 
 /* default snap length (maximum bytes per packet to capture) */
 #define SNAP_LEN 65535
+#define SPECIAL_TTL 88
+#define ARGC_NUM 3
 
 #ifdef COOKED
 	#define ETHERNET_H_LEN 16
@@ -16,17 +18,14 @@
 	#define ETHERNET_H_LEN 14
 #endif
 
-#define SPECIAL_TTL 88
-
 void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
 void print_usage(void);
-
 
 /*
  * print help text
  */
 void print_usage(void) {
-	printf("Usage: %s [interface][\"filter rule\"]\n", "net_speeder");
+	printf("Usage: %s [interface][\"filter rule\"]\n", "netspeeder");
 	printf("\n");
 	printf("Options:\n");
 	printf("    interface    Listen on <interface> for packets.\n");
@@ -35,12 +34,12 @@ void print_usage(void) {
 }
 
 void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet) {
-	static int count = 1;                  
-	struct libnet_ipv4_hdr *ip;              
+	static int count = 1;
+	struct libnet_ipv4_hdr *ip;
 
 	libnet_t *libnet_handler = (libnet_t *)args;
 	count++;
-	
+
 	ip = (struct libnet_ipv4_hdr*)(packet + ETHERNET_H_LEN);
 
 	if(ip->ip_ttl != SPECIAL_TTL) {
@@ -57,11 +56,11 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
 		}
 		int len_written = libnet_adv_write_raw_ipv4(libnet_handler, (u_int8_t *)ip, ntohs(ip->ip_len));
 		if(len_written < 0) {
-			printf("packet len:[%d] actual write:[%d]\n", ntohs(ip->ip_len), len_written);
-			printf("err msg:[%s]\n", libnet_geterror(libnet_handler));
+			printf("packet len: [%d] actual write: [%d]\n", ntohs(ip->ip_len), len_written);
+			printf("err msg: [%s]\n", libnet_geterror(libnet_handler));
 		}
 	} else {
-		//The packet net_speeder sent. nothing todo
+		// The packet netspeeder sent, nothing todo.
 	}
 	return;
 }
@@ -76,7 +75,6 @@ libnet_t* start_libnet(char *dev) {
 	return libnet_handler;
 }
 
-#define ARGC_NUM 3
 int main(int argc, char **argv) {
 	char *dev = NULL;
 	char errbuf[PCAP_ERRBUF_SIZE];
@@ -92,11 +90,11 @@ int main(int argc, char **argv) {
 		printf("Device: %s\n", dev);
 		printf("Filter rule: %s\n", filter_rule);
 	} else {
-		print_usage();	
+		print_usage();
 		return -1;
 	}
-	
-	printf("ethernet header len:[%d](14:normal, 16:cooked)\n", ETHERNET_H_LEN);
+
+	printf("ethernet header len: [%d](14:normal, 16:cooked)\n", ETHERNET_H_LEN);
 
 	if (pcap_lookupnet(dev, &net, &mask, errbuf) == -1) {
 		printf("Couldn't get netmask for device %s: %s\n", dev, errbuf);
@@ -107,7 +105,7 @@ int main(int argc, char **argv) {
 	printf("init pcap\n");
 	handle = pcap_open_live(dev, SNAP_LEN, 1, 0, errbuf);
 	if(handle == NULL) {
-		printf("pcap_open_live dev:[%s] err:[%s]\n", dev, errbuf);
+		printf("pcap_open_live dev: [%s] err: [%s]\n", dev, errbuf);
 		printf("init pcap failed\n");
 		return -1;
 	}
@@ -120,12 +118,12 @@ int main(int argc, char **argv) {
 	}
 
 	if (pcap_compile(handle, &fp, filter_rule, 0, net) == -1) {
-		printf("filter rule err:[%s][%s]\n", filter_rule, pcap_geterr(handle));
+		printf("filter rule err: [%s][%s]\n", filter_rule, pcap_geterr(handle));
 		return -1;
 	}
 
 	if (pcap_setfilter(handle, &fp) == -1) {
-		printf("set filter failed:[%s][%s]\n", filter_rule, pcap_geterr(handle));
+		printf("set filter failed: [%s][%s]\n", filter_rule, pcap_geterr(handle));
 		return -1;
 	}
 
