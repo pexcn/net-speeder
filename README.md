@@ -19,5 +19,5 @@ cd ..
 nice -n -5 netspeeder eth0 "ip" &> /dev/null &
 
 # speed up port 53 and 80
-nice -n -5 netspeeder eth0 "src port 53 || src port 80" &> /dev/null &
+nice -n -5 netspeeder eth0 "src port 53 || tcp src port 80" &> /dev/null &
 ```
