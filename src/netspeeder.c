@@ -22,10 +22,10 @@ void print_usage(void);
  * print help text
  */
 void print_usage(void) {
-	printf("Usage: %s [mode] interface \"filter\"\n", "netspeeder");
+	printf("Usage: %s <mode> <interface> \"filter\"\n", "netspeeder");
 	printf("\n");
 	printf("Options:\n");
-	printf("    mode         Ethernet header length(auto, normal, cooked)\n");
+	printf("    mode         Ethernet header length. (auto, normal, cooked)\n");
 	printf("                 The default is \"auto\"\n");
 	printf("    interface    Listen on <interface> for packets.\n");
 	printf("    filter       Rules to filter packets.\n");
