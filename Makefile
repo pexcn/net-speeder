@@ -4,7 +4,7 @@ SRC ?= src/netspeeder.c
 BIN ?= netspeeder
 
 all: $(SRC)
-	$(CC) -O3 -lpcap -lnet -o $(BIN) $(SRC)
+	$(CC) -O3 -lpcap -lnet -o $(BIN) $(SRC) -s -Wl,--build-id=none
 
 install: $(BIN)
 	install -d $(DESTDIR)/bin/
