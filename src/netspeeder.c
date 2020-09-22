@@ -22,7 +22,7 @@ void print_usage(void);
  * print help text
  */
 void print_usage(void) {
-	printf("Usage: %s <mode> <interface> \"filter\"\n", "netspeeder");
+	printf("Usage: %s [mode] <interface> \"filter\"\n", "netspeeder");
 	printf("\n");
 	printf("Options:\n");
 	printf("    mode         Ethernet header length. (auto, normal, cooked)\n");
@@ -119,7 +119,7 @@ int main(int argc, char **argv) {
 		return -1;
 	}
 
-	printf("ethernet header len: [%d](14:normal, 16:cooked)\n", ethernet_h_len);
+	printf("Ethernet header len: [%d] (14:normal, 16:cooked)\n", ethernet_h_len);
 
 	if (pcap_lookupnet(dev, &net, &mask, errbuf) == -1) {
 		printf("Couldn't get netmask for device %s: %s\n", dev, errbuf);
