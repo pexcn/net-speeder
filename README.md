@@ -20,4 +20,7 @@ nice -n -5 netspeeder eth0 "ip" &> /dev/null &
 
 # speed up port 53 and 80
 nice -n -5 netspeeder eth0 "src port 53 || tcp src port 80" &> /dev/null &
+
+# fix error: "err msg: [libnet_write_raw_ipv4(): -1 bytes written (Message too long)"
+ethtool -K eth0 tso off
 ```
