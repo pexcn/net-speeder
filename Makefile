@@ -6,6 +6,9 @@ BIN ?= netspeeder
 all: $(SRC)
 	$(CC) -o $(BIN) $(SRC) -s -Wl,--build-id=none -O3 -lpcap -lnet
 
+static: $(SRC)
+	$(CC) -o $(BIN) $(SRC) -s -Wl,--build-id=none -O3 -lpcap -lnet -Wl,-static -static
+
 install: $(BIN)
 	install -d $(DESTDIR)/bin/
 	install $(BIN) $(DESTDIR)/bin/

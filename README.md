@@ -10,6 +10,7 @@ apt-get install --no-install-recommends -y libnet1 libnet1-dev libpcap0.8 libpca
 git clone https://github.com/pexcn/netspeeder.git
 cd netspeeder
 make
+#make static
 make install
 cd ..
 ```
